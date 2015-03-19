@@ -57,7 +57,7 @@ trait UncheckedAnyRefExt<'a> {
     unsafe fn downcast_ref_unchecked<T: Send + Sync + 'static>(self) -> &'a T;
 }
 
-impl<'a> UncheckedAnyRefExt<'a> for &'a Any {
+impl<'a> UncheckedAnyRefExt<'a> for &'a (Any + Send + Sync) {
     #[inline]
     unsafe fn downcast_ref_unchecked<T: Send + Sync + 'static>(self) -> &'a T {
         // Get the raw representation of the trait object
@@ -75,7 +75,7 @@ trait UncheckedAnyMutRefExt<'a> {
     unsafe fn downcast_mut_unchecked<T: Send + Sync + 'static>(self) -> &'a mut T;
 }
 
-impl<'a> UncheckedAnyMutRefExt<'a> for &'a mut Any {
+impl<'a> UncheckedAnyMutRefExt<'a> for &'a mut (Any + Send + Sync) {
     #[inline]
     unsafe fn downcast_mut_unchecked<T: Send + Sync + 'static>(self) -> &'a mut T {
         // Get the raw representation of the trait object
