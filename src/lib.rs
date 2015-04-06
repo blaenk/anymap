@@ -1,10 +1,10 @@
 //! This crate provides the `AnyMap` type, a safe and convenient store for one value of each type.
 
-#![feature(core, std_misc, hash)]
+#![feature(core, std_misc)]
 #![cfg_attr(test, feature(test))]
 #![warn(unused_qualifications, non_upper_case_globals,
-        variant_size_differences, unused_typecasts,
-        missing_docs, unused_results)]
+        variant_size_differences, missing_docs,
+        unused_results)]
 
 #[cfg(test)]
 extern crate test;
@@ -108,13 +108,15 @@ impl UncheckedBoxAny for Box<Any + Send + Sync + 'static> {
 }
 
 mod with_clone {
+    // use std::marker::Reflect;
+
     #[doc(hidden)]
     pub trait CloneToAny {
         /// Clone `self` into a new `Box<Any + Send + Sync + 'static>` object.
         fn clone_to_any(&self) -> Box<Any + Send + Sync + 'static>;
     }
 
-    impl<T: Send + Sync + 'static + Clone> CloneToAny for T {
+    impl<T: Any + Send + Sync + 'static + Clone> CloneToAny for T {
         fn clone_to_any(&self) -> Box<Any + Send + Sync + 'static> {
             Box::new(self.clone())
         }
@@ -124,7 +126,7 @@ mod with_clone {
     /// Pretty much just `std::any::Any + Clone`.
     pub trait Any: ::std::any::Any + CloneToAny { }
 
-    impl<T: Send + Sync + 'static + Clone> Any for T { }
+    impl<T: Any + Send + Sync + 'static + Clone> Any for T { }
 
     impl Clone for Box<Any + Send + Sync + 'static> {
         fn clone(&self) -> Box<Any + Send + Sync + 'static> {
@@ -361,7 +363,7 @@ pub enum Entry<'a, V: 'a> {
     Vacant(VacantEntry<'a, V>),
 }
 
-impl<'a, V: Send + Sync + 'static + Clone> Entry<'a, V> {
+impl<'a, V: Any + Send + Sync + 'static + Clone> Entry<'a, V> {
     #[unstable = "matches collection reform v2 specification, waiting for dust to settle"]
     /// Returns a mutable reference to the entry if occupied, or the VacantEntry if vacant
     pub fn get(self) -> Result<&'a mut V, VacantEntry<'a, V>> {
@@ -372,7 +374,7 @@ impl<'a, V: Send + Sync + 'static + Clone> Entry<'a, V> {
     }
 }
 
-impl<'a, V: Send + Sync + 'static + Clone> OccupiedEntry<'a, V> {
+impl<'a, V: Any + Send + Sync + 'static + Clone> OccupiedEntry<'a, V> {
     #[stable]
     /// Gets a reference to the value in the entry
     pub fn get(&self) -> &V {
@@ -405,7 +407,7 @@ impl<'a, V: Send + Sync + 'static + Clone> OccupiedEntry<'a, V> {
     }
 }
 
-impl<'a, V: Send + Sync + 'static + Clone> VacantEntry<'a, V> {
+impl<'a, V: Any + Send + Sync + 'static + Clone> VacantEntry<'a, V> {
     #[stable]
     /// Sets the value of the entry with the VacantEntry's key,
     /// and returns a mutable reference to it
